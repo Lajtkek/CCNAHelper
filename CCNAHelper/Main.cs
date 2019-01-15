@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Utilities;
@@ -72,7 +73,11 @@ namespace CCNAHelper
 
         void FindAnswer()
         {
-            string question = "";
+            //TODO: Upgrade
+
+            Thread.Sleep(500);
+
+            string question = Clipboard.GetText();
 
             foreach(Question q in Settings.Instance.Questions)
             {
@@ -85,6 +90,8 @@ namespace CCNAHelper
                     }
                 }
             }
+
+            label1.Refresh();
         }
     }
 }
