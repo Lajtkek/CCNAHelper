@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2019
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CCNAHelper", "CCNAHelper\CCNAHelper.csproj", "{9DD2B4E5-09F5-4135-9934-6C2E30F8FA53}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DD2B4E5-09F5-4135-9934-6C2E30F8FA53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DD2B4E5-09F5-4135-9934-6C2E30F8FA53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DD2B4E5-09F5-4135-9934-6C2E30F8FA53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DD2B4E5-09F5-4135-9934-6C2E30F8FA53}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {833B9813-DBAF-4090-9720-8F074EF66A95}
+	EndGlobalSection
+EndGlobal
