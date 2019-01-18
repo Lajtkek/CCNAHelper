@@ -85,7 +85,7 @@ namespace CCNAHelper
 
             checker = new Thread(new ThreadStart(CheckForQuestion));
             checker.Start();
-
+            //
             //MessageBox.Show(resolution.ToString());
             //MessageBox.Show(Settings.Instance.Prefs.anchorA.ToString());
             Location = new Point((int)(resolution.Width * Settings.Instance.Prefs.anchorA.X), (int)(resolution.Height * Settings.Instance.Prefs.anchorA.Y));
