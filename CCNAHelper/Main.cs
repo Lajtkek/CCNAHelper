@@ -129,46 +129,58 @@ namespace CCNAHelper
                         }
                     }
                 }
-                if (Settings.Instance.Prefs.onlineMode) FindOnlineAnswer(question);
+                if (Settings.Instance.Prefs.onlineMode) {
+                    Thread t = new Thread(new ThreadStart(() => FindOnlineAnswer(question)));
+                    t.Start();
+                };
                 label1.Refresh();
             }
         }
 
         void FindOnlineAnswer(string question)
         {
-
-            string html = string.Empty;
-            string url = @"http://localhost/api/Answer.php?question="+question+"&key="+Settings.Instance.Prefs.apiKey;
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.AutomaticDecompression = DecompressionMethods.GZip;
-
-            string[] answers = new string[0];
-
-            try{
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    html = reader.ReadToEnd();
-                    if (!html.Contains("Error"))
-                    {
-                        answers = JsonConvert.DeserializeObject<string[]>(html);
-                    }
-                    else
-                    {
-                        label1.Text += html;
-                    }
-
-                }
-
-                foreach (string a in answers)
-                {
-                    label1.Text += a + "\n";
-                }
-            }catch(Exception e)
+            if (InvokeRequired)
             {
-                label1.Text += "Cant connect to Server";
+                Invoke(new MethodInvoker(() => { FindOnlineAnswer(question); }));
+            }
+            else
+            {
+
+                string html = string.Empty;
+                string url = @"http://localhost/api/Answer.php?question=" + question + "&key=" + Settings.Instance.Prefs.apiKey;
+
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                request.AutomaticDecompression = DecompressionMethods.GZip;
+
+                string[] answers = new string[0];
+
+                try
+                {
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                    using (Stream stream = response.GetResponseStream())
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        html = reader.ReadToEnd();
+                        if (!html.Contains("Error"))
+                        {
+                            answers = JsonConvert.DeserializeObject<string[]>(html);
+                        }
+                        else
+                        {
+                            label1.Text += html;
+                        }
+
+                    }
+
+                    foreach (string a in answers)
+                    {
+                        label1.Text += a + "\n";
+                    }
+                }
+                catch (Exception e)
+                {
+                    label1.Text += "Cant connect to Server";
+                }
             }
         }
     }
