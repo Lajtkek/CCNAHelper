@@ -8,6 +8,6 @@ namespace CCNAHelper
 {
     public class SerializedSettings
     {
-
+        public bool onlineMode;
     }
 }

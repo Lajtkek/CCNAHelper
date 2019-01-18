@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -90,8 +92,26 @@ namespace CCNAHelper
                     }
                 }
             }
-
+            FindOnlineAnswer();
             label1.Refresh();
+        }
+
+        void FindOnlineAnswer()
+        {
+            string question = Clipboard.GetText();
+            string html = string.Empty;
+            string url = @"http://localhost/api/Answer.php?question="+question;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                html = reader.ReadToEnd();
+            }
+            label1.Text = html;
         }
     }
 }

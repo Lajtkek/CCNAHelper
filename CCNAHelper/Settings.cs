@@ -108,5 +108,10 @@ namespace CCNAHelper
 
             }
         }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            prefs.onlineMode = checkBox1.Checked;
+        }
     }
 }
