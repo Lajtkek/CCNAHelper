@@ -12,18 +12,65 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Utilities;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
 namespace CCNAHelper
 {
+    public static class Clipboard
+    {
+        [DllImport("user32.dll")]
+        static extern IntPtr GetClipboardData(uint uFormat);
+        [DllImport("user32.dll")]
+        
+
+        static extern bool IsClipboardFormatAvailable(uint format);
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool OpenClipboard(IntPtr hWndNewOwner);
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool CloseClipboard();
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GlobalLock(IntPtr hMem);
+        [DllImport("kernel32.dll")]
+        static extern bool GlobalUnlock(IntPtr hMem);
+
+        const uint CF_UNICODETEXT = 13;
+
+        public static string GetText()
+        {
+            if (!IsClipboardFormatAvailable(CF_UNICODETEXT))
+                return null;
+            if (!OpenClipboard(IntPtr.Zero))
+                return null;
+            
+            string data = null;
+            var hGlobal = GetClipboardData(CF_UNICODETEXT);
+            if (hGlobal != IntPtr.Zero)
+            {
+                var lpwcstr = GlobalLock(hGlobal);
+                if (lpwcstr != IntPtr.Zero)
+                {
+                    data = Marshal.PtrToStringUni(lpwcstr);
+                    GlobalUnlock(lpwcstr);
+                }
+            }
+ 
+            CloseClipboard();
+        
+            return data;
+        }
+
+    }
     public partial class Main : Form
     {
-        public bool isContolDown;
+        private bool isContolDown;
+        private bool running;
+        private Thread checker;
 
         public Main()
         {
             InitializeComponent();
             Initialize();
-            InitializeHooks();           
+            InitializeHooks();                
         }
 
         void Initialize()
@@ -35,6 +82,9 @@ namespace CCNAHelper
             ShowInTaskbar = false;
 
             Rectangle resolution = new Rectangle(0,0,1920,1080);
+
+            checker = new Thread(new ThreadStart(CheckForQuestion));
+            checker.Start();
 
             //MessageBox.Show(resolution.ToString());
             //MessageBox.Show(Settings.Instance.Prefs.anchorA.ToString());
@@ -55,10 +105,27 @@ namespace CCNAHelper
             gkh.KeyDown += new KeyEventHandler(gkh_KeyDown);
         }
 
+        void CheckForQuestion()
+        {
+            MessageBox.Show(Clipboard.GetText());
+            running = true;
+            while (running) {
+                if (Clipboard.GetText() != null)
+                {
+                    string text = Clipboard.GetText();
+                    
+                    FindAnswer(text);
+                }
+                Application.DoEvents();
+                Thread.Sleep(50);
+            }
+        }
+
         void gkh_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
             {
+                running = false;
                 Application.Exit();
             }
             if (e.KeyCode == Keys.Up)
@@ -71,7 +138,7 @@ namespace CCNAHelper
             }
             if (e.KeyCode == Keys.C && isContolDown)
             {
-                FindAnswer();
+                //FindAnswer();
             }
             if (e.KeyCode == Keys.LControlKey)
             {
@@ -83,34 +150,35 @@ namespace CCNAHelper
             }
         }
 
-        void FindAnswer()
+        void FindAnswer(string question)
         {
-            //TODO: Upgrade
-
-            Thread.Sleep(500);
-
-            string question = Clipboard.GetText();
-
-            label1.Text = "Coudnt find answer offline\n1";
-
-            foreach (Question q in Settings.Instance.Questions)
+            if (InvokeRequired)
             {
-                if (q.Body.Contains(question))
+                Invoke(new MethodInvoker(() => { FindAnswer(question); }));                
+            }
+            else
+            {
+                label1.Text = "Coudnt find answer offline\n1";
+
+                foreach (Question q in Settings.Instance.Questions)
                 {
-                    label1.Text = "";
-                    foreach (string s in q.Answers)
+                    if (q.Body.Contains(question))
                     {
-                        label1.Text += s + "\n";
+                        label1.Text = "";
+                        foreach (string s in q.Answers)
+                        {
+                            label1.Text += s + "\n";
+                        }
                     }
                 }
+                if (Settings.Instance.Prefs.onlineMode) FindOnlineAnswer(question);
+                label1.Refresh();
             }
-            if(Settings.Instance.Prefs.onlineMode)FindOnlineAnswer();
-            label1.Refresh();
         }
 
-        void FindOnlineAnswer()
+        void FindOnlineAnswer(string question)
         {
-            string question = Clipboard.GetText();
+
             string html = string.Empty;
             string url = @"http://localhost/api/Answer.php?question="+question+"&key="+Settings.Instance.Prefs.apiKey;
 
