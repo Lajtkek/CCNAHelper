@@ -15,6 +15,8 @@ namespace CCNAHelper
         private PointF pointA;
         private PointF pointB;
 
+        public PointF percentA { get { return new PointF(pointA.X/pictureBox1.Width * 100, pointA.Y / pictureBox1.Height * 100); } }
+        public PointF percentB { get { return new PointF(pointB.X / pictureBox1.Width * 100, pointB.Y / pictureBox1.Height * 100); } }
         private float tolerance;
 
         int selectedPoint = -1;
@@ -78,6 +80,11 @@ namespace CCNAHelper
                 }
                 pictureBox1.Refresh();
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.OK;
         }
     }
 }

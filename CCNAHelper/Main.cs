@@ -28,11 +28,20 @@ namespace CCNAHelper
 
         void Initialize()
         {
-            BackColor = Color.Lime;
+            //BackColor = Color.Lime;
             TransparencyKey = Color.Lime;
             TopMost = true;
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar = false;
+
+            Rectangle resolution = new Rectangle(0,0,1920,1080);
+
+            //MessageBox.Show(resolution.ToString());
+            //MessageBox.Show(Settings.Instance.Prefs.anchorA.ToString());
+            Location = new Point((int)(resolution.Width * Settings.Instance.Prefs.anchorA.X), (int)(resolution.Height * Settings.Instance.Prefs.anchorA.Y));
+            Size = new Size((int)(resolution.Width * Settings.Instance.Prefs.anchorB.X),(int)(resolution.Height * Settings.Instance.Prefs.anchorB.Y));
+
+           
         }
 
         void InitializeHooks()

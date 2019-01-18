@@ -29,6 +29,8 @@ namespace CCNAHelper
 
             prefs.onlineMode = true;
             prefs.apiKey = "LightCap1337Eva32";
+            prefs.anchorA = new PointF(0,0f);
+            prefs.anchorB = new PointF(0.5F, 0.1f);
         }
 
         void LoadOfflinePackages()
@@ -108,7 +110,8 @@ namespace CCNAHelper
             PositionPicker p = new PositionPicker();
             if(p.ShowDialog() == DialogResult.OK)
             {
-
+                prefs.anchorA = new PointF((int)Math.Min(p.percentA.X, p.percentB.X)/100f,(int) Math.Min(p.percentA.Y, p.percentB.Y)/100f);
+                prefs.anchorB = new PointF((int)Math.Max(p.percentA.X, p.percentB.X)/100f, (int)Math.Max(p.percentA.Y, p.percentB.Y)/100f);
             }
         }
 
