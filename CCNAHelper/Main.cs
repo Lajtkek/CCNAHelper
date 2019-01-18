@@ -119,25 +119,30 @@ namespace CCNAHelper
 
             string[] answers = new string[0];
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                html = reader.ReadToEnd();
-                if (!html.Contains("Error"))
+            try{
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
                 {
-                    answers = JsonConvert.DeserializeObject<string[]>(html);
-                }
-                else
-                {
-                    label1.Text += html;
-                }
-                
-            }
+                    html = reader.ReadToEnd();
+                    if (!html.Contains("Error"))
+                    {
+                        answers = JsonConvert.DeserializeObject<string[]>(html);
+                    }
+                    else
+                    {
+                        label1.Text += html;
+                    }
 
-            foreach(string a in answers)
+                }
+
+                foreach (string a in answers)
+                {
+                    label1.Text += a + "\n";
+                }
+            }catch(Exception e)
             {
-                label1.Text += a + "\n";
+                MessageBox.Show("Nelje ze připojit k serveru");
             }
         }
     }
