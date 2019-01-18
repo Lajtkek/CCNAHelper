@@ -95,9 +95,9 @@
             this.checkBox1.Location = new System.Drawing.Point(475, 36);
             this.checkBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(150, 21);
+            this.checkBox1.Size = new System.Drawing.Size(110, 21);
             this.checkBox1.TabIndex = 6;
-            this.checkBox1.Text = "Force Offline Mode";
+            this.checkBox1.Text = "Online Mode";
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 

@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Utilities;
+using Newtonsoft.Json;
 
 namespace CCNAHelper
 {
@@ -81,18 +82,20 @@ namespace CCNAHelper
 
             string question = Clipboard.GetText();
 
-            foreach(Question q in Settings.Instance.Questions)
+            label1.Text = "Coudnt find answer offline\n1";
+
+            foreach (Question q in Settings.Instance.Questions)
             {
                 if (q.Body.Contains(question))
                 {
                     label1.Text = "";
-                    foreach(string s in q.Answers)
+                    foreach (string s in q.Answers)
                     {
                         label1.Text += s + "\n";
                     }
                 }
             }
-            FindOnlineAnswer();
+            if(Settings.Instance.Prefs.onlineMode)FindOnlineAnswer();
             label1.Refresh();
         }
 
@@ -100,18 +103,33 @@ namespace CCNAHelper
         {
             string question = Clipboard.GetText();
             string html = string.Empty;
-            string url = @"http://localhost/api/Answer.php?question="+question;
+            string url = @"http://localhost/api/Answer.php?question="+question+"&key="+Settings.Instance.Prefs.apiKey;
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
             request.AutomaticDecompression = DecompressionMethods.GZip;
+
+            string[] answers = new string[0];
 
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
             using (StreamReader reader = new StreamReader(stream))
             {
                 html = reader.ReadToEnd();
+                if (!html.Contains("Error"))
+                {
+                    answers = JsonConvert.DeserializeObject<string[]>(html);
+                }
+                else
+                {
+                    label1.Text += html;
+                }
+                
             }
-            label1.Text = html;
+
+            foreach(string a in answers)
+            {
+                label1.Text += a + "\n";
+            }
         }
     }
 }

@@ -26,6 +26,9 @@ namespace CCNAHelper
         {
             InitializeComponent();
             LoadOfflinePackages();
+
+            prefs.onlineMode = true;
+            prefs.apiKey = "LightCap1337Eva32";
         }
 
         void LoadOfflinePackages()
