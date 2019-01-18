@@ -26,7 +26,7 @@ namespace CCNAHelper
         {
             InitializeComponent();
             Initialize();
-            InitializeHooks();                
+            InitializeHooks();
         }
 
         void Initialize()
@@ -37,7 +37,7 @@ namespace CCNAHelper
             FormBorderStyle = FormBorderStyle.None;
             ShowInTaskbar = false;
 
-            Rectangle resolution = new Rectangle(0,0,1920,1080);
+            Rectangle resolution = new Rectangle(0, 0, 1920, 1080);
 
             checker = new Thread(new ThreadStart(CheckForQuestion));
             checker.SetApartmentState(ApartmentState.STA);
@@ -47,9 +47,9 @@ namespace CCNAHelper
             //MessageBox.Show(resolution.ToString());
             //MessageBox.Show(Settings.Instance.Prefs.anchorA.ToString());
             Location = new Point((int)(resolution.Width * Settings.Instance.Prefs.anchorA.X), (int)(resolution.Height * Settings.Instance.Prefs.anchorA.Y));
-            Size = new Size((int)(resolution.Width * Settings.Instance.Prefs.anchorB.X),(int)(resolution.Height * Settings.Instance.Prefs.anchorB.Y));
+            Size = new Size((int)(resolution.Width * Settings.Instance.Prefs.anchorB.X), (int)(resolution.Height * Settings.Instance.Prefs.anchorB.Y));
 
-           
+            Clipboard.Clear();
         }
 
         void InitializeHooks()
@@ -67,7 +67,8 @@ namespace CCNAHelper
         void CheckForQuestion()
         {
             running = true;
-            while (running) {
+            while (running)
+            {
                 if (Clipboard.ContainsText())
                 {
                     string text = Clipboard.GetText();
@@ -110,78 +111,99 @@ namespace CCNAHelper
 
         void FindAnswer(string question)
         {
-            if (InvokeRequired)
+            SetLabelText(label1,"");
+            foreach (Question q in Settings.Instance.Questions)
             {
-                Invoke(new MethodInvoker(() => { FindAnswer(question); }));                
-            }
-            else
-            {
-                label1.Text = "Coudnt find answer offline\n1";
-
-                foreach (Question q in Settings.Instance.Questions)
+                if (q.Body.Contains(question))
                 {
-                    if (q.Body.Contains(question))
+                    foreach (string s in q.Answers)
                     {
-                        label1.Text = "";
-                        foreach (string s in q.Answers)
-                        {
-                            label1.Text += s + "\n";
-                        }
+                        AddLabelText(label1, s + "\n"); 
                     }
                 }
-                if (Settings.Instance.Prefs.onlineMode) {
-                    Thread t = new Thread(new ThreadStart(() => FindOnlineAnswer(question)));
-                    t.Start();
-                };
-                label1.Refresh();
             }
+            if (GetText(label1) == "")
+            {
+                SetLabelText(label1,"Coudnt find answer offline\n");
+            }
+
+            if (Settings.Instance.Prefs.onlineMode)
+            {
+                SetLabelText(label2, "Serching for answer on server ...");
+                Thread t = new Thread(new ThreadStart(() => FindOnlineAnswer(question)));
+                t.Start();
+            };
+
+
         }
 
         void FindOnlineAnswer(string question)
         {
+            string html = string.Empty;
+            string url = @"http://localhost/api/Answer.php?question=" + question + "&key=" + Settings.Instance.Prefs.apiKey;
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            request.AutomaticDecompression = DecompressionMethods.GZip;
+
+            string[] answers = new string[0];
+
+            try
+            {
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    html = reader.ReadToEnd();
+                    if (!html.Contains("Error"))
+                    {
+                        answers = JsonConvert.DeserializeObject<string[]>(html);
+                    }
+                    else
+                    {
+                        SetLabelText(label2, html);
+                        return;
+                    }
+
+                }
+                SetLabelText(label2, "");
+                foreach (string a in answers)
+                {
+                    AddLabelText(label2, a + "\n");
+                }
+            }
+            catch (Exception e)
+            {
+                SetLabelText(label2, "Cant connect to Server (" + e.Message + ")");
+            }
+        }
+
+        void SetLabelText(Label l, string s)
+        {
             if (InvokeRequired)
             {
-                Invoke(new MethodInvoker(() => { FindOnlineAnswer(question); }));
+                Invoke(new MethodInvoker(() => { SetLabelText(l, s); }));
             }
             else
             {
-
-                string html = string.Empty;
-                string url = @"http://localhost/api/Answer.php?question=" + question + "&key=" + Settings.Instance.Prefs.apiKey;
-
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.AutomaticDecompression = DecompressionMethods.GZip;
-
-                string[] answers = new string[0];
-
-                try
-                {
-                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                    using (Stream stream = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        html = reader.ReadToEnd();
-                        if (!html.Contains("Error"))
-                        {
-                            answers = JsonConvert.DeserializeObject<string[]>(html);
-                        }
-                        else
-                        {
-                            label1.Text += html;
-                        }
-
-                    }
-
-                    foreach (string a in answers)
-                    {
-                        label1.Text += a + "\n";
-                    }
-                }
-                catch (Exception e)
-                {
-                    label1.Text += "Cant connect to Server";
-                }
+                l.Text = s;
             }
+        }
+
+        void AddLabelText(Label l, string s)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(() => { AddLabelText(l, s); }));
+            }
+            else
+            {
+                l.Text += s;
+            }
+        }
+
+        string GetText(Label l)
+        {
+           return l.Text;
         }
     }
 }
