@@ -26,11 +26,23 @@ namespace CCNAHelper
         {
             InitializeComponent();
             LoadOfflinePackages();
+            Initialize();
+        }
 
+        void Initialize()
+        {
             prefs.onlineMode = true;
             prefs.apiKey = "LightCap1337Eva32";
-            prefs.anchorA = new PointF(0,0f);
+            prefs.anchorA = new PointF(0, 0f);
             prefs.anchorB = new PointF(0.5F, 0.1f);
+            prefs.showMode = false;
+
+            prefs.showKey = Keys.Up;
+            prefs.hideKey = Keys.Down;
+            prefs.toggleShowKey = Keys.Up;
+
+            RefreshBindings();
+            ToggleButtons();
         }
 
         void LoadOfflinePackages()
@@ -118,6 +130,75 @@ namespace CCNAHelper
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             prefs.onlineMode = checkBox1.Checked;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            prefs.showMode = false;
+            ToggleButtons();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            prefs.showMode = true;
+            ToggleButtons();
+        }
+
+        void ToggleButtons()
+        {
+            if (prefs.showMode)
+            {
+                button3.Enabled = true;
+                button4.Enabled = false;
+                button3.Focus();
+                panel1.Visible = false;
+                panel2.Visible = true;
+            }
+            else
+            {
+                button3.Enabled = false;
+                button4.Enabled = true;
+                button4.Focus();
+                panel1.Visible = true;
+                panel2.Visible = false;
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            KeyDialog kd = new KeyDialog();
+            if(kd.ShowDialog() == DialogResult.OK)
+            {
+                prefs.showKey = kd.pressedKey;
+                RefreshBindings();
+            }
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            KeyDialog kd = new KeyDialog();
+            if (kd.ShowDialog() == DialogResult.OK)
+            {
+                prefs.hideKey = kd.pressedKey;
+                RefreshBindings();
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            KeyDialog kd = new KeyDialog();
+            if (kd.ShowDialog() == DialogResult.OK)
+            {
+                prefs.toggleShowKey = kd.pressedKey;
+                RefreshBindings();
+            }
+        }
+
+        void RefreshBindings()
+        {
+            button5.Text = prefs.showKey.ToString();
+            button6.Text = prefs.hideKey.ToString();
+            button7.Text = prefs.toggleShowKey.ToString();
         }
     }
 }

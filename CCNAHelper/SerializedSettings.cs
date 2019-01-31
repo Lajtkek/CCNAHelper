@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CCNAHelper
 {
@@ -14,5 +15,11 @@ namespace CCNAHelper
 
         public PointF anchorA;
         public PointF anchorB;
+
+        public bool showMode;
+
+        public Keys showKey;
+        public Keys hideKey;
+        public Keys toggleShowKey;
     }
 }

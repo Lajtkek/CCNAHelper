@@ -49,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="KeyDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KeyDialog.Designer.cs">
+      <DependentUpon>KeyDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="KeyHooks\globalKeyboardHook.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
@@ -78,6 +84,9 @@
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="KeyDialog.resx">
+      <DependentUpon>KeyDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
