@@ -117,29 +117,32 @@ namespace CCNAHelper
         void FindAnswer(string question)
         {
             SetLabelText(label1,"");
-            foreach (Question q in Settings.Instance.Questions)
-            {
-                if (q.Body.Contains(question))
+
+           foreach (Question q in Settings.Instance.Questions)
+           {
+                        
+               if (q.Body.Contains(question))
+               {
+                   foreach (string s in q.Answers)
+                   {
+                      AddLabelText(label1, s + " --- ");
+                   }
+               }
+                     
+           }
+
+                if (GetText(label1) == "")
                 {
-                    foreach (string s in q.Answers)
-                    {
-                        AddLabelText(label1, s + "\n"); 
-                    }
+                    SetLabelText(label1, "Coudnt find answer offline\n");
                 }
-            }
-            if (GetText(label1) == "")
-            {
-                SetLabelText(label1,"Coudnt find answer offline\n");
-            }
 
-            if (Settings.Instance.Prefs.onlineMode)
-            {
-                SetLabelText(label2, "Serching for answer on server ...");
-                Thread t = new Thread(new ThreadStart(() => FindOnlineAnswer(question)));
-                t.Start();
-            };
-
-
+                if (Settings.Instance.Prefs.onlineMode)
+                {
+                    SetLabelText(label2, "Serching for answer on server ...");
+                    Thread t = new Thread(new ThreadStart(() => FindOnlineAnswer(question)));
+                    t.Start();
+                };
+           
         }
 
         void FindOnlineAnswer(string question)

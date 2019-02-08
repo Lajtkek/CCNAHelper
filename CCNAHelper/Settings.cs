@@ -31,7 +31,7 @@ namespace CCNAHelper
 
         void Initialize()
         {
-            prefs.onlineMode = true;
+            prefs.onlineMode = false;
             prefs.apiKey = "LightCap1337Eva32";
             prefs.anchorA = new PointF(0, 0f);
             prefs.anchorB = new PointF(0.5F, 0.1f);
