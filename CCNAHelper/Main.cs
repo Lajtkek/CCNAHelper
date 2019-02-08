@@ -52,12 +52,12 @@ namespace CCNAHelper
         void InitializeHooks()
         {
             globalKeyboardHook gkh = new globalKeyboardHook();
-            gkh.HookedKeys.Add(Keys.LControlKey);
-            gkh.HookedKeys.Add(Keys.C);
             gkh.HookedKeys.Add(Keys.Escape);
-            gkh.HookedKeys.Add(Keys.Up);
-            gkh.HookedKeys.Add(Keys.Down);
+            gkh.HookedKeys.Add(Settings.Instance.Prefs.toggleShowKey);
+            gkh.HookedKeys.Add(Settings.Instance.Prefs.showKey);
+            gkh.HookedKeys.Add(Settings.Instance.Prefs.hideKey);
             gkh.KeyDown += new KeyEventHandler(gkh_KeyDown);
+            gkh.KeyUp += new KeyEventHandler(gkh_KeyUp);
         }
 
         [STAThread]
@@ -84,25 +84,34 @@ namespace CCNAHelper
                 running = false;
                 Application.Exit();
             }
-            if (e.KeyCode == Keys.Up)
+            if (Settings.Instance.Prefs.showMode)
             {
-                Show();
-            }
-            if (e.KeyCode == Keys.Down)
-            {
-                Hide();
-            }
-            if (e.KeyCode == Keys.C && isContolDown)
-            {
-                //FindAnswer();
-            }
-            if (e.KeyCode == Keys.LControlKey)
-            {
-                isContolDown = true;
+                if (e.KeyCode == Settings.Instance.Prefs.toggleShowKey)
+                {
+                    Show();
+                }
             }
             else
             {
-                isContolDown = false;
+                if (e.KeyCode == Settings.Instance.Prefs.showKey)
+                {
+                    Show();
+                }
+                if (e.KeyCode == Settings.Instance.Prefs.hideKey)
+                {
+                    Hide();
+                }
+            }
+        }
+
+        void gkh_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (Settings.Instance.Prefs.showMode)
+            {
+                if (e.KeyCode == Settings.Instance.Prefs.toggleShowKey)
+                {
+                    Hide();
+                }
             }
         }
 
