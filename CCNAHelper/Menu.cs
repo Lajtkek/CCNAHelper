@@ -23,7 +23,6 @@ namespace CCNAHelper
         {
             Main main = new Main();
             Hide();
-            main.ShowDialog();
         }
 
         private void button2_Click(object sender, EventArgs e)

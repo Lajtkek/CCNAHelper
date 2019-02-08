@@ -18,7 +18,6 @@ namespace CCNAHelper
 {
     public partial class Main : Form
     {
-        private bool isContolDown;
         private bool running;
         private Thread checker;
 
