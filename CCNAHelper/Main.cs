@@ -125,7 +125,7 @@ namespace CCNAHelper
                {
                    foreach (string s in q.Answers)
                    {
-                      AddLabelText(label1, s + " --- ");
+                      AddLabelText(label1, s + "\n");
                    }
                }
                      
