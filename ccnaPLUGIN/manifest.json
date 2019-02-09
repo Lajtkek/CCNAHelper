@@ -1,0 +1,23 @@
+{
+ "manifest_version": 2,
+ "name": "CCNAHelper",
+"description": "Test",
+"version": "1.0.0",
+"content_scripts": [
+ {
+ "matches":  ["https://assessment.netacad.net/*", "https://www.netacad.com/*"],
+  "js": ["helper.js"],
+  "run_at": "document_end"
+ }
+],
+"permissions": [
+              "activeTab",
+              "clipboardWrite",
+"https://ajax.googleapis.com/"
+             ],
+ "browser_action": {
+ "default_icon": "icon.png",
+ "default_popup": "popup.html"
+ }
+
+}
