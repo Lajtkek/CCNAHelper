@@ -30,6 +30,8 @@ namespace CCNAHelper
 
         void Initialize()
         {
+            LightCapKeyHook lkh = new LightCapKeyHook();
+           
             BackColor = Color.Lime;
             TransparencyKey = Color.Lime;
             TopMost = true;

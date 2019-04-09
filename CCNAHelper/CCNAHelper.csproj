@@ -56,6 +56,7 @@
       <DependentUpon>KeyDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="KeyHooks\globalKeyboardHook.cs" />
+    <Compile Include="LightCapKeyHook.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
