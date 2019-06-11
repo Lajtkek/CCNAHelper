@@ -18,7 +18,12 @@ namespace CCNAHelper
 {
     public partial class Main : Form
     {
-        private bool running;
+        private static HttpListener _listener;
+
+        private bool running = true;
+
+        private string question = "";
+
         private Thread checker;
 
         public Main()
@@ -44,10 +49,41 @@ namespace CCNAHelper
             checker.SetApartmentState(ApartmentState.STA);
             checker.Start();
 
+            FormClosing += (object sender, FormClosingEventArgs e) => { _listener.Close(); running = false; };
+
             Location = new Point((int)(resolution.Width * Settings.Instance.Prefs.anchorA.X), (int)(resolution.Height * Settings.Instance.Prefs.anchorA.Y));
             Size = new Size((int)(resolution.Width * Settings.Instance.Prefs.anchorB.X), (int)(resolution.Height * Settings.Instance.Prefs.anchorB.Y));
 
-            Clipboard.Clear();
+            _listener = new HttpListener();
+            _listener.Prefixes.Add("http://localhost:60024/");
+            _listener.Start();
+            _listener.BeginGetContext(new AsyncCallback(ProcessRequest), null);
+        }
+
+        void ProcessRequest(IAsyncResult result)
+        {
+            if (!running) return;
+            HttpListenerContext context = _listener.EndGetContext(result);
+            HttpListenerRequest request = context.Request;
+
+            string postData;
+            using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
+            {
+                postData = reader.ReadToEnd();
+                question = postData.Split("=".ToArray()[0])[1].Replace("+"," ");             
+            }
+            
+
+            _listener.Close();
+            _listener = new HttpListener();
+            _listener.Prefixes.Add("http://localhost:60024/");
+            _listener.Start();
+            _listener.BeginGetContext(new AsyncCallback(ProcessRequest), null);
+        }
+
+        void StartListener()
+        {
+
         }
 
         void InitializeHooks()
@@ -64,17 +100,15 @@ namespace CCNAHelper
         [STAThread]
         void CheckForQuestion()
         {
-            running = true;
             while (running)
             {
-                if (Clipboard.ContainsText())
+                if (question != "")
                 {
-                    string text = Clipboard.GetText();
-                    Clipboard.Clear();
-                    FindAnswer(text);
+                    FindAnswer(question);
+                    question = "";
                 }
                 Application.DoEvents();
-                Thread.Sleep(50);
+                Thread.Sleep(200);
             }
         }
 
@@ -83,7 +117,7 @@ namespace CCNAHelper
             if (e.KeyCode == Keys.Escape)
             {
                 running = false;
-                Application.Exit();
+                Environment.Exit(0);
             }
             if (Settings.Instance.Prefs.showMode)
             {
@@ -133,18 +167,19 @@ namespace CCNAHelper
                      
            }
 
-                if (GetText(label1) == "")
-                {
-                    SetLabelText(label1, "Coudnt find answer offline\n");
-                }
+          if (GetText(label1) == "")
+          {
+               SetLabelText(label1, "Coudnt find answer offline\n");
+          }
 
+                /*
                 if (Settings.Instance.Prefs.onlineMode)
                 {
                     SetLabelText(label2, "Serching for answer on server ...");
                     Thread t = new Thread(new ThreadStart(() => FindOnlineAnswer(question)));
                     t.Start();
                 };
-           
+                */
         }
 
         void FindOnlineAnswer(string question)
