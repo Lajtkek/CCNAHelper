@@ -24,6 +24,10 @@ namespace CCNAHelper
 
         private string question = "";
 
+        private int answerIndex = 0;
+
+        List<string> answers = new List<string>();
+
         private Thread checker;
 
         public Main()
@@ -35,7 +39,6 @@ namespace CCNAHelper
 
         void Initialize()
         {
-            LightCapKeyHook lkh = new LightCapKeyHook();
            
             BackColor = Color.Lime;
             TransparencyKey = Color.Lime;
@@ -44,10 +47,6 @@ namespace CCNAHelper
             ShowInTaskbar = false;
 
             Rectangle resolution = new Rectangle(0, 0, 1920, 1080);
-
-            checker = new Thread(new ThreadStart(CheckForQuestion));
-            checker.SetApartmentState(ApartmentState.STA);
-            checker.Start();
 
             FormClosing += (object sender, FormClosingEventArgs e) => { _listener.Close(); running = false; };
 
@@ -70,7 +69,11 @@ namespace CCNAHelper
             using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
             {
                 postData = reader.ReadToEnd();
-                question = postData.Split("=".ToArray()[0])[1].Replace("+"," ");             
+                if (postData.Split("=".ToArray()[0])[1].Replace("+", " ") != question)
+                {
+                    question = postData.Split("=".ToArray()[0])[1].Replace("+", " ");
+                    FindAnswer(question);
+                }
             }
             
 
@@ -90,26 +93,13 @@ namespace CCNAHelper
         {
             globalKeyboardHook gkh = new globalKeyboardHook();
             gkh.HookedKeys.Add(Keys.Escape);
+            gkh.HookedKeys.Add(Keys.E);
+            gkh.HookedKeys.Add(Keys.Q);
             gkh.HookedKeys.Add(Settings.Instance.Prefs.toggleShowKey);
             gkh.HookedKeys.Add(Settings.Instance.Prefs.showKey);
             gkh.HookedKeys.Add(Settings.Instance.Prefs.hideKey);
             gkh.KeyDown += new KeyEventHandler(gkh_KeyDown);
             gkh.KeyUp += new KeyEventHandler(gkh_KeyUp);
-        }
-
-        [STAThread]
-        void CheckForQuestion()
-        {
-            while (running)
-            {
-                if (question != "")
-                {
-                    FindAnswer(question);
-                    question = "";
-                }
-                Application.DoEvents();
-                Thread.Sleep(200);
-            }
         }
 
         void gkh_KeyDown(object sender, KeyEventArgs e)
@@ -118,6 +108,18 @@ namespace CCNAHelper
             {
                 running = false;
                 Environment.Exit(0);
+            }
+            if (e.KeyCode == Keys.Q)
+            {
+                answerIndex--;
+                if (answerIndex < 0) answerIndex = 0;
+                ShowAnswer();
+            }
+            if (e.KeyCode == Keys.E)
+            {
+                answerIndex++;
+                answerIndex %= answers.Count;
+                ShowAnswer();
             }
             if (Settings.Instance.Prefs.showMode)
             {
@@ -154,6 +156,7 @@ namespace CCNAHelper
         {
             SetLabelText(label1,"");
 
+            answers = new List<string>();
            foreach (Question q in Settings.Instance.Questions)
            {
                         
@@ -161,17 +164,14 @@ namespace CCNAHelper
                {
                    foreach (string s in q.Answers)
                    {
-                      AddLabelText(label1, s + "\n");
+                        answers.Add(s);
                    }
                }
                      
            }
 
-          if (GetText(label1) == "")
-          {
-               SetLabelText(label1, "Coudnt find answer offline\n");
-          }
-
+            answerIndex = 0;
+            ShowAnswer();
                 /*
                 if (Settings.Instance.Prefs.onlineMode)
                 {
@@ -180,6 +180,18 @@ namespace CCNAHelper
                     t.Start();
                 };
                 */
+        }
+
+        void ShowAnswer()
+        {
+            if (answers.Count == 0)
+            {
+                SetLabelText(label1, "No answers found");
+            }
+            else
+            {
+                SetLabelText(label1, answers[answerIndex]);
+            }
         }
 
         void FindOnlineAnswer(string question)
